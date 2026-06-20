@@ -659,7 +659,7 @@ YXNanoBananaProAPINode = create_gemini_node_class(
 YXGPTImage2AllAPINode = create_gpt_node_class(
     "GPT-image-2",
     "YXGPTImage2AllAPINode",
-    "GPT image 2 Custom Api",
+    "GPT image 2",
     "Use GPT image 2 all with custom api (gpt-image-2-all)",
     NODE_CATEGORY_1
 )    
@@ -677,7 +677,7 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "YXDynamicImageListNode": "Image List",
     "YXAPIInfoNode": "API info",
-    "YXNanoBanana2APINode": "Nano Banana 2 Custom Api",
-    "YXNanoBananaProAPINode": "Nano Banana Pro Custom Api",
-    "YXGPTImage2AllAPINode": "GPT image 2 Custom Api"
+    "YXNanoBanana2APINode": "Nano Banana 2",
+    "YXNanoBananaProAPINode": "Nano Banana Pro",
+    "YXGPTImage2AllAPINode": "GPT image 2"
 }
