@@ -1,0 +1,12 @@
+{
+    "Provider1":{
+        "baseURL":"",
+        "api-key":"",
+        "enabled":1
+    },
+    "Provider2":{
+        "baseURL":"",
+        "api-key":"",
+        "enabled":0
+    }
+}

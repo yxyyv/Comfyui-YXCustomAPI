@@ -1,0 +1,11 @@
+/examples
+*.txt
+/workflow
+/.vscode
+*.md
+!*Readme.md*
+!*Changelog.md*
+/test/
+*cache*
+*.json
+!*.example
