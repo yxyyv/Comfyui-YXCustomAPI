@@ -1,10 +1,15 @@
 # 简介
 YXCUSTOMAPI用于支持第三方API接入生图模型到Comfyui中。
 
-## 当前支持的模型
+## 当前支持的模型和参数
 - Nano Banana 2
+    - resolution 分辨率
+    - aspect_ratio 画幅
 - Nano Banana pro
+    - resolution 分辨率
+    - aspect_ratio 画幅
 - GPT Image 2 (1k版本)
+    - aspect_ratio 画幅
 
 ---
 # 注意事项
