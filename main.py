@@ -12,10 +12,10 @@ import torch
 from PIL import Image
 
 RESOLUTION_TIMEOUTS = {
-    "512px":100,
-    "1K": 180,
-    "2K": 300,
-    "4K": 360,
+    "512px":200,
+    "1K": 360,
+    "2K": 600,
+    "4K": 720,
 }
 
 CURRENT_VERSION = "v1.1"
@@ -488,7 +488,7 @@ def create_gemini_node_class(model, node_id, display_name, description, category
                     io.String.Input("prompt", multiline=True, default=" "),
                     io.Combo.Input("resolution", options=resolution_options, default=resolution_options[0]),
                     io.Combo.Input("aspect_ratio", options=aspect_ratio_options, default=aspect_ratio_options[0]),
-                    io.Int.Input("timeout", default=-1, min=-1, max=1200),
+                    io.Int.Input("timeout", default=0, min=-1, max=1200),
                     io.Int.Input("seed",default=0,min=0,max=99999999),
                 ],
                 outputs=[
@@ -543,7 +543,7 @@ def create_gpt_node_class(model, node_id, display_name, description, category):
                     io.String.Input("prompt", multiline=True, default=""),
                     io.Combo.Input("resolution", options=resolution_options, default=resolution_options[0]),
                     io.Combo.Input("aspect_ratio", options=aspect_ratio_options, default=aspect_ratio_options[0]),
-                    io.Int.Input("timeout", default=-1, min=-1, max=1200),
+                    io.Int.Input("timeout", default=0, min=-1, max=1200),
                     io.Int.Input("seed",default=0,min=0,max=99999999),
                 ],
                 outputs=[
@@ -643,7 +643,7 @@ class YXAPIInfoNode(io.ComfyNode):
 YXNanoBanana2APINode = create_gemini_node_class(
     "Nano Banana 2",
     "YXNanoBanana2APINode",
-    "Nano Banana 2 API",
+    "Nano Banana 2",
     "Use Nano banana 2 with custom api (gemini-3.1-flash-image-preview)",
     NODE_CATEGORY_1
 )
@@ -651,7 +651,7 @@ YXNanoBanana2APINode = create_gemini_node_class(
 YXNanoBananaProAPINode = create_gemini_node_class(
     "Nano Banana pro",
     "YXNanoBananaProAPINode",
-    "Nano Banana Pro API",
+    "Nano Banana Pro",
     "Use Nano banana pro with custom api (gemini-3-pro-image-preview)",
     NODE_CATEGORY_1
 )
