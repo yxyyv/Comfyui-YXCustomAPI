@@ -1,0 +1,33 @@
+{
+    "Config":{
+        "RequestURL":{
+            "gemini":"/v1beta/models/{model}:generateContent",
+            "gptGenerate":"/v1/images/generations",
+            "gptEdit":"/v1/images/edits"
+        }
+    },
+    "Models":{
+        "Nano Banana pro":{
+            "model_name": "gemini-3-pro-image",
+            "display_name": "Nano Banana pro",
+            "endpoint":"gemini",
+            "aspect_ratio":["auto","1:1", "2:3", "3:2", "3:4", "4:3", "9:16", "16:9", "4:5","5:4", "21:9"],
+            "resolution":["1k","2k","4k"]
+        },
+        "Nano Banana 2":{
+            "model_name": "gemini-3.1-flash-image",
+            "display_name": "Nano Banana 2",
+            "endpoint":"gemini",
+            "aspect_ratio":["auto","1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9"],
+            "resolution":["512px","1k","2k","4k"]
+        },
+        "GPT-image-2":{
+            "model_name": "gpt-image-2-all",
+            "display_name":"GPT image 2",
+            "endpoint":"gpt",
+            "aspect_prompt":["","方形 1:1","横版 16:9", "竖版 9:16", "横版 4:3", "竖版 3:4", "横版 3:2", "竖版 2:3", "2:5 竖屏", "横版 5:"],
+            "aspect_ratio":["auto","1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "2:5", "5:2"],
+            "resolution":["1k","2k","4k"]
+        }
+    }
+}

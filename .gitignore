@@ -8,3 +8,4 @@
 *cache*
 *.json
 !*.example
+!model.json
