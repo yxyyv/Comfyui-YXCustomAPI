@@ -7,8 +7,8 @@ from comfy_api.latest import io # type: ignore
 from io import BytesIO
 
 import numpy as np
-import requests
-import torch
+import requests # type: ignore
+import torch # type: ignore
 from PIL import Image
 
 RESOLUTION_TIMEOUTS = {
@@ -82,6 +82,14 @@ def _get_model_info(SelectedModel,mode):
     else:
         print(f"警告：在 {MODEL_CONFIG} 中未找到 '{modelInfo}' 模型配置")
         return []
+
+def _get_model_name_options(model: str) -> List[str]:
+    model_names = _get_model_info(model, "model_name")
+    if isinstance(model_names, list):
+        return [item for item in model_names if item]
+    if isinstance(model_names, str) and model_names:
+        return [model_names]
+    return []
 
 
 def _parse_ratio(value: str) -> Optional[float]:
@@ -173,6 +181,7 @@ def _get_requestURL(
     model: str,
     baseURL: str,
     endpointMode: str,
+    model_name: str,
 ) -> str:
     model_config = _get_config("model")
     if not model_config:
@@ -185,7 +194,7 @@ def _get_requestURL(
         raise RuntimeError(f"RequestURL template not found for endpoint {endpointMode}")
 
     if endpointMode == "gemini":
-        requestURL = (f"{baseURL}{request_url_template}").format(model=model_info.get("model_name"))
+        requestURL = (f"{baseURL}{request_url_template}").format(model=model_name)
     elif endpointMode == "gptGenerate" or endpointMode == "gptEdit":
         requestURL = f"{baseURL}{request_url_template}"
     return requestURL
@@ -195,6 +204,7 @@ def call_endpoint(
     api: str,
     prompt: str,
     model: str,
+    model_name: str,
     timeout: int,
     resolution: str,
     aspect_ratio: str,
@@ -222,7 +232,7 @@ def call_endpoint(
     if not model_info:
         raise RuntimeError(f"Model {model} not found in config")
 
-    requestURL = _get_requestURL(model, baseURL,endpointMode)
+    requestURL = _get_requestURL(model, baseURL,endpointMode,model_name)
 
     if timeout == -1:
         request_timeout = None
@@ -235,7 +245,7 @@ def call_endpoint(
     resolved_aspect_ratio = _resolve_aspect_ratio(aspect_ratio, images, model)
 
     print(f"-------------------------------------------------------------")
-    print(f"输入模型：{model}；调用：{model_info.get('model_name')}")
+    print(f"输入模型：{model}；调用：{model_name}")
     print(f"节点版本：{CURRENT_VERSION}")
     print(f"端点模式：{endpointMode}")
     print(f"当前生图比例：{resolved_aspect_ratio}")
@@ -471,12 +481,11 @@ def _call_gpt_endpoint(
 def create_gemini_node_class(model, node_id, display_name, description, category):
     """工厂函数：动态创建 gemini 节点类"""
     class DynamicGeminiNode(io.ComfyNode):
-        model_name = _get_model_info(model,"model_name")
-
         @classmethod
         def define_schema(cls):
             resolution_options = _get_model_info(model, "resolution")
             aspect_ratio_options = _get_model_info(model, "aspect_ratio")
+            model_name_options = _get_model_name_options(model)
             return io.Schema(
                 node_id=node_id,
                 display_name=display_name,
@@ -486,6 +495,7 @@ def create_gemini_node_class(model, node_id, display_name, description, category
                     io.Custom("Api").Input("api"),
                     io.Image.Input("images",optional=True),
                     io.String.Input("prompt", multiline=True, default=" "),
+                    io.Combo.Input("model_name", options=model_name_options, default=model_name_options[0]),
                     io.Combo.Input("resolution", options=resolution_options, default=resolution_options[0]),
                     io.Combo.Input("aspect_ratio", options=aspect_ratio_options, default=aspect_ratio_options[0]),
                     io.Int.Input("timeout", default=0, min=-1, max=1200),
@@ -506,13 +516,15 @@ def create_gemini_node_class(model, node_id, display_name, description, category
             resolution=None,
             aspect_ratio=None,
             timeout=None,
-            seed=None
+            seed=None,
+            model_name=None
         ) -> io.NodeOutput:
             result = call_endpoint(
                 endpointMode="gemini",
                 api=api,
                 prompt=prompt,
                 model=model,
+                model_name=model_name,
                 timeout=timeout,
                 resolution=resolution,
                 aspect_ratio=aspect_ratio,
@@ -527,11 +539,11 @@ def create_gemini_node_class(model, node_id, display_name, description, category
 def create_gpt_node_class(model, node_id, display_name, description, category):
     """工厂函数：动态创建 gpt 节点类"""
     class DynamicGPTNode(io.ComfyNode):
-        model_name = _get_model_info(model,"model_name")
         @classmethod
         def define_schema(cls):
             resolution_options = _get_model_info(model, "resolution")
             aspect_ratio_options = _get_model_info(model, "aspect_ratio")
+            model_name_options = _get_model_name_options(model)
             return io.Schema(
                 node_id=node_id,
                 display_name=display_name,
@@ -541,6 +553,7 @@ def create_gpt_node_class(model, node_id, display_name, description, category):
                     io.Custom("Api").Input("api"),
                     io.Image.Input("images",optional=True),
                     io.String.Input("prompt", multiline=True, default=""),
+                    io.Combo.Input("model_name", options=model_name_options, default=model_name_options[0]),
                     io.Combo.Input("resolution", options=resolution_options, default=resolution_options[0]),
                     io.Combo.Input("aspect_ratio", options=aspect_ratio_options, default=aspect_ratio_options[0]),
                     io.Int.Input("timeout", default=0, min=-1, max=1200),
@@ -558,6 +571,7 @@ def create_gpt_node_class(model, node_id, display_name, description, category):
             prompt=None,
             api=None,
             images=None,
+            model_name=None,
             resolution=None,
             aspect_ratio=None,
             timeout=None,
@@ -572,6 +586,7 @@ def create_gpt_node_class(model, node_id, display_name, description, category):
                 api=api,
                 prompt=prompt,
                 model=model,
+                model_name=model_name,
                 timeout=timeout,
                 resolution=resolution,
                 aspect_ratio=aspect_ratio,
