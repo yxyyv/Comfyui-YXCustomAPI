@@ -273,6 +273,7 @@ def call_endpoint(
             request_timeout=request_timeout,
             images=images,
             model=model,
+            model_name=model_name,
             resolution=resolution,
             endpoint_mode=endpointMode,
         )
@@ -367,6 +368,7 @@ def _call_gpt_endpoint(
     request_timeout: int,
     images: Optional[torch.Tensor],
     model: str,
+    model_name: Optional[str],
     resolution:str,
     endpoint_mode: str,
 )  -> torch.Tensor:
@@ -387,9 +389,14 @@ def _call_gpt_endpoint(
     if resolution != "auto":
         enhanced_prompt = f"{resolution},{enhanced_prompt}"
     
-    model_name = _get_model_info(model,"model_name")
-    if not model_name:
-        raise RuntimeError(f"{model}不存在于配置")
+    # Use the provider-specific value selected in the node. Config entries
+    # may contain several candidates and must not be sent as the API model.
+    selected_model_name = (model_name or "").strip()
+    if not selected_model_name:
+        configured_names = _get_model_name_options(model)
+        selected_model_name = configured_names[0] if configured_names else ""
+    if not selected_model_name:
+        raise RuntimeError(f"{model}不存在可用的 model_name 配置")
 
     # 图生图
     has_valid_images = images is not None and len(images) > 0 if hasattr(images, '__len__') else images is not None
@@ -421,7 +428,7 @@ def _call_gpt_endpoint(
             raise RuntimeError("at least one image is required")
 
         payload = {
-            "model": model_name,
+            "model": selected_model_name,
             "prompt": enhanced_prompt,
             "response_format": "b64_json"
         }
@@ -430,7 +437,7 @@ def _call_gpt_endpoint(
     else:
         files = None
         payload = {
-            "model": model_name,
+            "model": selected_model_name,
             "prompt": enhanced_prompt,
             "response_format": "b64_json",
         }
